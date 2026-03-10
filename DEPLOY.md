@@ -24,25 +24,25 @@ git push -u origin main
 
 ## Step 4 — Service Settings
 
-| Field | Value |
-|-------|-------|
-| **Name** | `inventory-api` |
-| **Environment** | `Node` |
-| **Build Command** | `npm install` |
-| **Start Command** | `npm start` |
-| **Region** | Choose closest to your users |
+| Field             | Value                        |
+| ----------------- | ---------------------------- |
+| **Name**          | `inventory-api`              |
+| **Environment**   | `Node`                       |
+| **Build Command** | `npm install`                |
+| **Start Command** | `npm start`                  |
+| **Region**        | Choose closest to your users |
 
 ## Step 5 — Environment Variables
 
 Add these in Render Dashboard → Environment:
 
-| Key | Value |
-|-----|-------|
-| `MONGODB_URI` | Your MongoDB Atlas connection string |
-| `MONGO_URI` | _(alternative)_ Same as MONGODB_URI |
-| `JWT_SECRET` | A strong random secret for production |
-| `JWT_EXPIRE` | `7d` (optional) |
-| `NODE_ENV` | `production` (optional, Render sets this) |
+| Key           | Value                                     |
+| ------------- | ----------------------------------------- |
+| `MONGODB_URI` | Your MongoDB Atlas connection string      |
+| `MONGO_URI`   | _(alternative)_ Same as MONGODB_URI       |
+| `JWT_SECRET`  | A strong random secret for production     |
+| `JWT_EXPIRE`  | `7d` (optional)                           |
+| `NODE_ENV`    | `production` (optional, Render sets this) |
 
 **MongoDB Atlas:** Get connection string from Atlas → Clusters → Connect → Connect your application.
 
@@ -55,6 +55,7 @@ Add these in Render Dashboard → Environment:
 ## Step 7 — Test the API
 
 ### Public base URL
+
 ```
 https://inventory-api.onrender.com/api
 ```
@@ -77,6 +78,7 @@ https://inventory-api.onrender.com/api
 ## Step 8 — Postman Collection
 
 Update `postman_collection.json` baseUrl to your Render URL:
+
 ```
 https://inventory-api.onrender.com/api
 ```
@@ -84,6 +86,7 @@ https://inventory-api.onrender.com/api
 ## Step 9 — CORS
 
 CORS is already enabled in `app.js`:
+
 ```javascript
 app.use(cors());
 ```
@@ -94,16 +97,16 @@ The frontend can call the API from any domain.
 
 ## API Endpoints Overview
 
-| Resource | Base Path | Methods |
-|----------|-----------|---------|
-| Auth | `/api/auth` | POST register, login |
-| Categories | `/api/categories` | GET, POST, PUT, DELETE |
-| Models | `/api/models` | GET, POST, PUT, DELETE |
-| Products | `/api/products` | GET, POST, PUT, DELETE, GET /low-stock |
-| Stock | `/api/stock` | GET, POST |
-| Invoices | `/api/invoices` | GET, POST, DELETE |
-| Reports | `/api/reports` | GET /month/:year/:month, /top-products, /model-sales |
-| Dashboard | `/api/dashboard` | GET /summary |
+| Resource   | Base Path         | Methods                                              |
+| ---------- | ----------------- | ---------------------------------------------------- |
+| Auth       | `/api/auth`       | POST register, login                                 |
+| Categories | `/api/categories` | GET, POST, PUT, DELETE                               |
+| Models     | `/api/models`     | GET, POST, PUT, DELETE                               |
+| Products   | `/api/products`   | GET, POST, PUT, DELETE, GET /low-stock               |
+| Stock      | `/api/stock`      | GET, POST                                            |
+| Invoices   | `/api/invoices`   | GET, POST, DELETE                                    |
+| Reports    | `/api/reports`    | GET /month/:year/:month, /top-products, /model-sales |
+| Dashboard  | `/api/dashboard`  | GET /summary                                         |
 
 ---
 
