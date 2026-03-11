@@ -3,7 +3,10 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const { errorHandler, notFound } = require("./middleware/errorMiddleware");
-const { generalLimiter, authLimiter } = require("./middleware/rateLimitMiddleware");
+const {
+  generalLimiter,
+  authLimiter,
+} = require("./middleware/rateLimitMiddleware");
 const { protect } = require("./middleware/authMiddleware");
 
 const authRoutes = require("./routes/authRoutes");
@@ -22,11 +25,9 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(generalLimiter);
 
-
 app.get("/", (req, res) => {
-    res.send("Hello World");
-  });
-  
+  res.send("Hello World");
+});
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/categories", protect, categoryRoutes);
