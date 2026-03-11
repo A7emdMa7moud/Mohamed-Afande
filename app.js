@@ -22,6 +22,12 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(generalLimiter);
 
+
+app.get("/", (req, res) => {
+    res.send("Hello World");
+  });
+  
+
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/categories", protect, categoryRoutes);
 app.use("/api/models", protect, modelRoutes);
