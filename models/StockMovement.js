@@ -1,15 +1,15 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const stockMovementSchema = new mongoose.Schema(
   {
     product: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
+      ref: "Product",
       required: true,
     },
     type: {
       type: String,
-      enum: ['purchase', 'sale', 'adjustment'],
+      enum: ["purchase", "sale", "adjustment"],
       required: true,
     },
     quantity: {
@@ -24,7 +24,7 @@ const stockMovementSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-module.exports = mongoose.model('StockMovement', stockMovementSchema);
+module.exports = mongoose.model("StockMovement", stockMovementSchema);

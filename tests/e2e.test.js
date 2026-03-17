@@ -19,6 +19,7 @@ let categoryId = '';
 let modelId = '';
 let productId = '';
 let stockMovementId = '';
+let initialStockMovementId = '';
 let invoiceId = '';
 let initialProductQuantity = 0;
 
@@ -48,6 +49,8 @@ describe('Sprint 5 - Backend E2E Tests', () => {
     if (categoryId) await Category.findByIdAndDelete(categoryId).catch(() => {});
     if (modelId) await Model.findByIdAndDelete(modelId).catch(() => {});
     if (productId) await Product.findByIdAndDelete(productId).catch(() => {});
+    if (initialStockMovementId)
+      await StockMovement.findByIdAndDelete(initialStockMovementId).catch(() => {});
     if (stockMovementId) await StockMovement.findByIdAndDelete(stockMovementId).catch(() => {});
     if (invoiceId) await Invoice.findByIdAndDelete(invoiceId).catch(() => {});
   });
@@ -102,6 +105,18 @@ describe('Sprint 5 - Backend E2E Tests', () => {
       expect(res.body.quantity).toBe(50);
       productId = res.body._id;
       initialProductQuantity = 50;
+    });
+
+    test('1.4 Initial stock movement is recorded (purchase)', async () => {
+      const movement = await StockMovement.findOne({
+        product: productId,
+        type: 'purchase',
+        note: 'Initial stock',
+      });
+
+      expect(movement).toBeTruthy();
+      expect(movement.quantity).toBe(initialProductQuantity);
+      initialStockMovementId = movement._id.toString();
     });
   });
 
@@ -213,6 +228,26 @@ describe('Sprint 5 - Backend E2E Tests', () => {
       expect(typeof res.body.totalInvoices).toBe('number');
     });
 
+    test('4.1b Active Products Report', async () => {
+      const res = await request(app)
+        .get('/api/reports/active-products?month=2026-03')
+        .set(getAuthHeader());
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      if (res.body.length > 0) {
+        expect(res.body[0]).toHaveProperty('productId');
+        expect(res.body[0]).toHaveProperty('productName');
+        expect(res.body[0]).toHaveProperty('month', '2026-03');
+        expect(res.body[0]).toHaveProperty('purchaseTotal');
+        expect(res.body[0]).toHaveProperty('saleTotal');
+        expect(res.body[0]).toHaveProperty('totalOps');
+        expect(res.body[0]).toHaveProperty('score');
+        expect(res.body[0]).toHaveProperty('level');
+        expect(res.body[0]).toHaveProperty('product');
+      }
+    });
+
     test('4.2 Top Selling Products', async () => {
       const res = await request(app)
         .get('/api/reports/top-products')
@@ -284,6 +319,20 @@ describe('Sprint 5 - Backend E2E Tests', () => {
       }
     });
 
+    test('6.2b Get products by category endpoint', async () => {
+      const res = await request(app)
+        .get(`/api/products/${categoryId}/products?page=1&limit=10`)
+        .set(getAuthHeader());
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('data');
+      expect(res.body).toHaveProperty('pagination');
+      const catId = (p) => (p.category?._id || p.category)?.toString();
+      if (res.body.data?.length > 0) {
+        expect(res.body.data.every((p) => catId(p) === categoryId)).toBe(true);
+      }
+    });
+
     test('6.3 Products filter by model', async () => {
       const res = await request(app)
         .get(`/api/products?model=${modelId}`)
@@ -301,6 +350,20 @@ describe('Sprint 5 - Backend E2E Tests', () => {
       if (res.body.data?.length > 0) {
         expect(res.body.data.every((p) => p.quantity <= 5)).toBe(true);
       }
+    });
+
+    test('6.5 Update product quantity only', async () => {
+      const res = await request(app)
+        .put(`/api/products/${productId}`)
+        .set(getAuthHeader())
+        .set('Content-Type', 'application/json')
+        .send({ quantity: 40 });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('_id');
+      expect(res.body.quantity).toBe(40);
+      expect(res.body).toHaveProperty('category');
+      expect(res.body).toHaveProperty('model');
     });
   });
 
@@ -343,7 +406,7 @@ describe('Sprint 5 - Backend E2E Tests', () => {
 
       expect([404, 200]).toContain(res.status);
       if (res.status === 404) {
-        expect(res.body).toHaveProperty('message');
+        expect(res.body).toHaveProperty('error');
       }
     });
   });

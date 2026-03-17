@@ -1,5 +1,11 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const {
+  USER_ALREADY_EXISTS,
+  REGISTER_SUCCESS,
+  LOGIN_FAILED,
+  LOGIN_SUCCESS,
+} = require("../utils/messages");
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -14,13 +20,14 @@ const register = async (req, res, next) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        error: 'User with this email already exists.',
+        error: USER_ALREADY_EXISTS,
       });
     }
     const user = await User.create({ email, password, role: role || 'staff' });
     const token = generateToken(user._id);
     res.status(201).json({
       success: true,
+      message: REGISTER_SUCCESS,
       token,
       user: {
         id: user._id,
@@ -40,12 +47,13 @@ const login = async (req, res, next) => {
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({
         success: false,
-        error: 'Invalid email or password.',
+        error: LOGIN_FAILED,
       });
     }
     const token = generateToken(user._id);
     res.json({
       success: true,
+      message: LOGIN_SUCCESS,
       token,
       user: {
         id: user._id,

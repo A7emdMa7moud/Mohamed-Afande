@@ -1,16 +1,23 @@
+const {
+  INVALID_ID,
+  NOT_FOUND,
+  SERVER_ERROR,
+  VALIDATION_FAILED,
+} = require("../utils/messages");
+
 const errorHandler = (err, req, res, next) => {
   let statusCode =
     err.statusCode || (res.statusCode === 200 ? 500 : res.statusCode);
-  let message = err.message || "Server Error";
+  let message = err.message || SERVER_ERROR;
 
   if (err.name === "CastError") {
     statusCode = 400;
-    message = "Invalid ID format";
+    message = INVALID_ID;
   } else if (err.name === "ValidationError") {
     statusCode = 400;
     message = Object.values(err.errors)
       .map((e) => e.message)
-      .join(", ");
+      .join(", ") || VALIDATION_FAILED;
   }
 
   res.status(statusCode).json({
@@ -21,9 +28,7 @@ const errorHandler = (err, req, res, next) => {
 };
 
 const notFound = (req, res, next) => {
-  const error = new Error(`Not Found - ${req.originalUrl}`);
-  error.statusCode = 404;
-  next(error);
+  res.status(404).json({ success: false, error: NOT_FOUND });
 };
 
 module.exports = { errorHandler, notFound };

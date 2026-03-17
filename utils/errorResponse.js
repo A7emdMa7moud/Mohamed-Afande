@@ -1,3 +1,5 @@
+const { SERVER_ERROR } = require("./messages");
+
 class ErrorResponse extends Error {
   constructor(message, statusCode = 500) {
     super(message);
@@ -9,7 +11,7 @@ class ErrorResponse extends Error {
 const sendError = (res, message, statusCode = 500) => {
   res.status(statusCode).json({
     success: false,
-    error: message || 'Server Error',
+    error: message || SERVER_ERROR,
   });
 };
 

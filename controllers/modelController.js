@@ -1,8 +1,9 @@
-const Model = require('../models/Model');
+const Model = require("../models/Model");
+const { MODEL_NOT_FOUND, MODEL_DELETED } = require("../utils/messages");
 const {
   getPaginationOptions,
   paginatedResponse,
-} = require('../middleware/paginationMiddleware');
+} = require("../middleware/paginationMiddleware");
 
 const getAllModels = async (req, res, next) => {
   try {
@@ -23,7 +24,7 @@ const getModelById = async (req, res, next) => {
   try {
     const model = await Model.findById(req.params.id);
     if (!model) {
-      return res.status(404).json({ message: 'Model not found' });
+      return res.status(404).json({ success: false, error: MODEL_NOT_FOUND });
     }
     res.json(model);
   } catch (error) {
@@ -47,7 +48,7 @@ const updateModel = async (req, res, next) => {
       runValidators: true,
     });
     if (!model) {
-      return res.status(404).json({ message: 'Model not found' });
+      return res.status(404).json({ success: false, error: MODEL_NOT_FOUND });
     }
     res.json(model);
   } catch (error) {
@@ -59,9 +60,9 @@ const deleteModel = async (req, res, next) => {
   try {
     const model = await Model.findByIdAndDelete(req.params.id);
     if (!model) {
-      return res.status(404).json({ message: 'Model not found' });
+      return res.status(404).json({ success: false, error: MODEL_NOT_FOUND });
     }
-    res.json({ message: 'Model deleted successfully', model });
+    res.json({ success: true, message: MODEL_DELETED, model });
   } catch (error) {
     next(error);
   }

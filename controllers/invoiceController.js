@@ -1,5 +1,13 @@
-const Invoice = require('../models/Invoice');
-const Product = require('../models/Product');
+const Invoice = require("../models/Invoice");
+const Product = require("../models/Product");
+const {
+  INVOICE_NOT_FOUND,
+  INVOICE_DELETED,
+  INVOICE_MUST_HAVE_ITEMS,
+  PRODUCT_NOT_FOUND,
+  productNotFoundInInvoice,
+  insufficientStockForProduct,
+} = require("../utils/messages");
 const StockMovement = require('../models/StockMovement');
 const {
   getPaginationOptions,
@@ -58,7 +66,7 @@ const createInvoice = async (req, res, next) => {
     const { customerName, items, notes } = req.body;
 
     if (!items || items.length === 0) {
-      return res.status(400).json({ message: 'Invoice must have at least one item' });
+      return res.status(400).json({ success: false, error: INVOICE_MUST_HAVE_ITEMS });
     }
 
     const processedItems = [];
@@ -68,7 +76,10 @@ const createInvoice = async (req, res, next) => {
     for (const item of items) {
       const product = await Product.findById(item.product);
       if (!product) {
-        return res.status(404).json({ message: `Product ${item.product} not found` });
+        return res.status(404).json({
+          success: false,
+          error: productNotFoundInInvoice(item.product),
+        });
       }
       if (product.quantity < item.quantity) {
         return res.status(400).json({
@@ -129,7 +140,7 @@ const deleteInvoice = async (req, res, next) => {
     }
 
     await Invoice.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Invoice deleted successfully', invoice });
+    res.json({ success: true, message: INVOICE_DELETED, invoice });
   } catch (error) {
     next(error);
   }

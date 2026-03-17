@@ -1,9 +1,14 @@
-const StockMovement = require('../models/StockMovement');
-const Product = require('../models/Product');
+const StockMovement = require("../models/StockMovement");
+const Product = require("../models/Product");
+const {
+  STOCK_MOVEMENT_NOT_FOUND,
+  PRODUCT_NOT_FOUND,
+  insufficientStockWithQty,
+} = require("../utils/messages");
 const {
   getPaginationOptions,
   paginatedResponse,
-} = require('../middleware/paginationMiddleware');
+} = require("../middleware/paginationMiddleware");
 
 const getAllStockMovements = async (req, res, next) => {
   try {
@@ -11,7 +16,7 @@ const getAllStockMovements = async (req, res, next) => {
 
     const [movements, total] = await Promise.all([
       StockMovement.find()
-        .populate('product', 'name quantity')
+        .populate("product", "name quantity")
         .sort({ date: -1 })
         .skip(skip)
         .limit(limit),
@@ -27,11 +32,13 @@ const getAllStockMovements = async (req, res, next) => {
 const getStockMovementById = async (req, res, next) => {
   try {
     const movement = await StockMovement.findById(req.params.id).populate(
-      'product',
-      'name quantity'
+      "product",
+      "name quantity",
     );
     if (!movement) {
-      return res.status(404).json({ message: 'Stock movement not found' });
+      return res
+        .status(404)
+        .json({ success: false, error: STOCK_MOVEMENT_NOT_FOUND });
     }
     res.json(movement);
   } catch (error) {
@@ -45,31 +52,32 @@ const createStockMovement = async (req, res, next) => {
 
     const productDoc = await Product.findById(product);
     if (!productDoc) {
-      return res.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ success: false, error: PRODUCT_NOT_FOUND });
     }
 
-    if (type === 'sale' || type === 'adjustment') {
-      const qtyChange = type === 'sale' ? -quantity : quantity;
+    if (type === "sale" || type === "adjustment") {
+      const qtyChange = type === "sale" ? -quantity : quantity;
       const newQuantity = productDoc.quantity + qtyChange;
       if (newQuantity < 0) {
         return res.status(400).json({
-          message: `Insufficient stock. Available: ${productDoc.quantity}`,
+          success: false,
+          error: insufficientStockWithQty(productDoc.quantity),
         });
       }
     }
 
     const movement = await StockMovement.create(req.body);
 
-    if (type === 'purchase') {
+    if (type === "purchase") {
       productDoc.quantity += quantity;
-    } else if (type === 'sale') {
+    } else if (type === "sale") {
       productDoc.quantity -= quantity;
-    } else if (type === 'adjustment') {
+    } else if (type === "adjustment") {
       productDoc.quantity += quantity;
     }
     await productDoc.save();
 
-    await movement.populate('product', 'name quantity');
+    await movement.populate("product", "name quantity");
     res.status(201).json(movement);
   } catch (error) {
     next(error);
