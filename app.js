@@ -27,6 +27,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(generalLimiter);
