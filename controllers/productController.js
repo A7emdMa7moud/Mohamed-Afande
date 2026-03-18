@@ -63,7 +63,6 @@ const getProductById = async (req, res, next) => {
 const createProduct = async (req, res, next) => {
   try {
     const initialQuantity = Number(req.body.quantity ?? 0);
-
     const productData = {
       ...req.body,
       quantity: 0,
@@ -80,7 +79,7 @@ const createProduct = async (req, res, next) => {
         product: product._id,
         type: "purchase",
         quantity: initialQuantity,
-        note: "Initial stock",
+        note: "إضافة كمية أولية",
       });
     }
 
