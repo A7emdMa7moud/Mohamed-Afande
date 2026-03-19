@@ -54,6 +54,7 @@ const productUpdateSchema = Joi.object({
   wholesalePrice: Joi.number().min(0),
   salePrice: Joi.number().min(0),
   quantity: Joi.number().min(0),
+  row: Joi.string().trim().uppercase().default("بدون رف"),
 }).min(1);
 
 router.get("/", getAllProducts);
