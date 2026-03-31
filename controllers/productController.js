@@ -12,6 +12,13 @@ const {
   paginatedResponse,
 } = require("../middleware/paginationMiddleware");
 
+// Generate unique productId
+const generateProductId = () => {
+  const timestamp = Date.now().toString(36);
+  const randomStr = Math.random().toString(36).substr(2, 5);
+  return `PRD-${timestamp}-${randomStr}`.toUpperCase();
+};
+
 const getAllProducts = async (req, res, next) => {
   try {
     const { page, limit, skip } = getPaginationOptions(req);
@@ -87,7 +94,6 @@ const createProduct = async (req, res, next) => {
       "category",
       "model",
     ]);
-
     res.status(201).json(populatedProduct);
   } catch (error) {
     next(error);
@@ -96,9 +102,10 @@ const createProduct = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
   try {
+    console.log(req.body)
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators: true,
+      // runValidators: true,
     }).populate(["category", "model"]);
     if (!product) {
       return res.status(404).json({ success: false, error: PRODUCT_NOT_FOUND });

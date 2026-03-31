@@ -14,6 +14,7 @@ const {
 } = require("../controllers/productController");
 
 const productSchema = Joi.object({
+  productId: Joi.string().trim(),
   name: Joi.string().required().trim(),
   category: Joi.string()
     .required()
@@ -38,6 +39,7 @@ const productSchema = Joi.object({
 });
 
 const productUpdateSchema = Joi.object({
+  productId: Joi.string().trim(),
   name: Joi.string().trim(),
   category: Joi.string().custom((value, helpers) => {
     if (!mongoose.Types.ObjectId.isValid(value)) {
