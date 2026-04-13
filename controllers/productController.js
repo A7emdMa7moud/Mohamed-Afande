@@ -102,7 +102,6 @@ const createProduct = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
   try {
-    console.log(req.body)
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       // runValidators: true,
